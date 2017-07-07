@@ -1,3 +1,20 @@
+class Vec {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+}
+
+class Img {
+  constructor(imgUrl, x = 0, y = 0, w = 100, h = 100) {
+    this.pos = new Vec(x, y);
+    this.size = new Vec(w, h);
+    this.rotation = 0; // rotation in degrees
+    this.img = new Image(this.size.x, this.size.y);
+    this.img.src = imgUrl;
+  }
+}
+
 class Editor {
   // you have to give it an width and height and you can give it an parent where it will "sit" in.
   constructor(width, height, parent) {
@@ -14,10 +31,45 @@ class Editor {
     } else {
       document.body.appendChild(this.canvas);
     }
+
+    this.update = () => {
+
+
+
+      this.draw();
+      requestAnimationFrame(this.update);
+    }
+    this.update();
   }
 
-  set img(img) {
-    this.img = img;
-    // TODO: add it to the canvas
+
+  draw() {
+    if (this.img) {
+      this.drawImage(this.img);
+    }
   }
+
+  drawImage(img) {
+    console.log(img);
+    this.context.drawImage(img.img, img.pos.x, img.pos.y);
+  }
+
+  set image(img) {
+
+    if (img instanceof Blob) {
+      img = URL.createObjectURL(img); // make an img of the blob
+    }
+
+    this.img = new Img(img);
+
+  }
+
+  get blob() {
+    return this.canvas.toBlob();
+  }
+
+  get dataUrl() {
+    return this.canvas.toDataURL();
+  }
+
 }
