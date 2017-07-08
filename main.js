@@ -1,4 +1,5 @@
-const editor = new Editor(300, 300, document.getElementById("container"));
+const container = document.getElementById("container");
+const editor = new Editor(300, 300, container);
 const file = document.getElementById("file");
 const scale = document.getElementById("scale");
 const scaleDisplay = document.getElementById("scaleDisplay");
@@ -24,4 +25,12 @@ offsetX.addEventListener("change", e => {
 offsetY.addEventListener("change", e => {
   editor.img.pos.y = e.target.value;
   offsetYdisplay.innerHTML = e.target.value;
+});
+container.children[0].addEventListener("wheel", e => {
+  let scale = 0.1;
+  if (e.deltaY > 0) {
+    scale = -0.1;
+  }
+  editor.img.scale.x += scale;
+  editor.img.scale.y += scale;
 });

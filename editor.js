@@ -72,7 +72,7 @@ class Editor {
   set image(img) {
 
     if (img instanceof Blob) {
-      img = URL.createObjectURL(img); // make an img of the blob
+      img = URL.createObjectURL(img); // make an imgURL of the blob
     }
 
     this.img = new Img(img);
