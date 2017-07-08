@@ -9,6 +9,7 @@ class Img {
   constructor(imgUrl, x = 0, y = 0, w = 100, h = 100) {
     this.pos = new Vec(x, y);
     this.size = new Vec(w, h);
+    this.scale = new Vec(1, 1);
     this.rotation = 0; // rotation in degrees
     this.img = new Image(this.size.x, this.size.y);
     this.img.src = imgUrl;
@@ -44,14 +45,17 @@ class Editor {
 
 
   draw() {
+    this.context.fillStyle = "#fff";
+    this.context.fillRect(0, 0, this.canvas.width, this.canvas.height); // clear the screen
+
+
     if (this.img) {
       this.drawImage(this.img);
     }
   }
 
   drawImage(img) {
-    console.log(img);
-    this.context.drawImage(img.img, img.pos.x, img.pos.y);
+    this.context.drawImage(img.img, img.pos.x, img.pos.y, img.scale.x * img.size.x, img.scale.y * img.size.y);
   }
 
   set image(img) {
