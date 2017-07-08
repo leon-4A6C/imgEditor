@@ -13,12 +13,18 @@ class Rect {
 }
 
 class Img extends Rect {
-  constructor(imgUrl, x = 0, y = 0, w = 100, h = 100) {
-    super(x, y, w, h);
+  constructor(imgUrl, x = 0, y = 0, w, h) {
+    super(x, y, w || 100, h || 100);
     this.scale = new Vec(1, 1);
     this.rotation = 0; // rotation in degrees
-    this.img = new Image(this.size.x, this.size.y);
+    this.img = document.createElement("img");
     this.img.src = imgUrl;
+    this.img.addEventListener("load", e => {
+      this.img.width = w || this.img.naturalWidth;
+      this.img.height = h || this.img.naturalHeight;
+      this.size.x = this.img.width;
+      this.size.y = this.img.height;
+    });
   }
 
   get actualSize() {
