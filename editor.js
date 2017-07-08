@@ -5,15 +5,26 @@ class Vec {
   }
 }
 
-class Img {
-  constructor(imgUrl, x = 0, y = 0, w = 100, h = 100) {
+class Rect {
+  constructor(x, y, w, h) {
     this.pos = new Vec(x, y);
     this.size = new Vec(w, h);
+  }
+}
+
+class Img extends Rect {
+  constructor(imgUrl, x = 0, y = 0, w = 100, h = 100) {
+    super(x, y, w, h);
     this.scale = new Vec(1, 1);
     this.rotation = 0; // rotation in degrees
     this.img = new Image(this.size.x, this.size.y);
     this.img.src = imgUrl;
   }
+
+  get actualSize() {
+    return new Vec(this.size.x * this.scale.x, this.size.y * this.scale.y);
+  }
+
 }
 
 class Editor {
@@ -55,7 +66,7 @@ class Editor {
   }
 
   drawImage(img) {
-    this.context.drawImage(img.img, img.pos.x, img.pos.y, img.scale.x * img.size.x, img.scale.y * img.size.y);
+    this.context.drawImage(img.img, img.pos.x - img.actualSize.x/2, img.pos.y - img.actualSize.y/2, img.scale.x * img.size.x, img.scale.y * img.size.y);
   }
 
   set image(img) {
