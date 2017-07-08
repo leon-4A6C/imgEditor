@@ -33,26 +33,54 @@ class Img extends Rect {
 
 }
 
+class InputHandler {
+  constructor(editor) {
+    this.editor = editor;
+    this.editor.parent.querySelector(".editorCanvas").addEventListener("wheel", e => {
+      this.scaleImage(e);
+    });
+    this.editor.parent.querySelector(".editorCanvas").addEventListener("mousemove", e => {
+      this.moveImage(e);
+    });
+  }
+  moveImage(e) {
+    if (e.buttons === 1) {
+      // move the img
+      this.editor.img.pos.x += e.movementX;
+      this.editor.img.pos.y += e.movementY;
+      e.target.style.cursor = "grab";
+    } else {
+      e.target.style.cursor = "auto";
+    }
+  }
+  scaleImage(e) {
+    let scale = 0.1;
+    if (e.deltaY > 0) {
+      scale = -0.1;
+    }
+    this.editor.img.scale.x += scale;
+    this.editor.img.scale.y += scale;
+  }
+}
+
 class Editor {
   // you have to give it an width and height and you can give it an parent where it will "sit" in.
-  constructor(width, height, parent) {
+  constructor(width, height, parent = document.body) {
     this.canvas = document.createElement("canvas");
+    this.canvas.classList.add("editorCanvas");
     this.canvas.height = this.height =  height;
     this.canvas.width = this.width =  width;
     this.context = this.canvas.getContext("2d");
 
     this.img;
-
+    this.parent = parent;
     // add/append it to the parent or body
-    if (parent) {
-      parent.appendChild(this.canvas);
-    } else {
-      document.body.appendChild(this.canvas);
-    }
+    this.parent.appendChild(this.canvas);
 
+    this.inputHandler = new InputHandler(this);
+
+    // the "game" loop
     this.update = () => {
-
-
 
       this.draw();
       requestAnimationFrame(this.update);
@@ -65,14 +93,14 @@ class Editor {
     this.context.fillStyle = "#fff";
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height); // clear the screen
 
-
     if (this.img) {
       this.drawImage(this.img);
     }
+
   }
 
   drawImage(img) {
-    this.context.drawImage(img.img, img.pos.x - img.actualSize.x/2, img.pos.y - img.actualSize.y/2, img.scale.x * img.size.x, img.scale.y * img.size.y);
+    this.context.drawImage(img.img, img.pos.x - img.actualSize.x/2, img.pos.y - img.actualSize.y/2, img.scale.x * img.size.x, img.scale.y * img.size.y); // draws from the middle
   }
 
   set image(img) {
