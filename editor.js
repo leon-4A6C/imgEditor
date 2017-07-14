@@ -6,9 +6,10 @@ class Vec {
 }
 
 class Rect {
-  constructor(x, y, w, h) {
+  constructor(x, y, w, h, color = "#000") {
     this.pos = new Vec(x, y);
     this.size = new Vec(w, h);
+    this.color = color;
   }
 }
 
@@ -36,10 +37,10 @@ class Img extends Rect {
 class InputHandler {
   constructor(editor) {
     this.editor = editor;
-    this.editor.parent.querySelector(".editorCanvas").addEventListener("wheel", e => {
+    this.editor.canvas.addEventListener("wheel", e => {
       this.scaleImage(e);
     });
-    this.editor.parent.querySelector(".editorCanvas").addEventListener("mousemove", e => {
+    this.editor.canvas.addEventListener("mousemove", e => {
       this.moveImage(e);
     });
   }
@@ -65,12 +66,16 @@ class InputHandler {
 
 class Editor {
   // you have to give it an width and height and you can give it an parent where it will "sit" in.
-  constructor(width, height, parent = document.body) {
+  constructor(width, height, desiredWidth, desiredHeight, parent = document.body) {
     this.canvas = document.createElement("canvas");
     this.canvas.classList.add("editorCanvas");
     this.canvas.height = this.height =  height;
     this.canvas.width = this.width =  width;
     this.context = this.canvas.getContext("2d");
+    this.padding = 120; // minimum between the edges of the mask and the border
+
+    this.mask = new Rect(this.width/2, this.height/2, desiredWidth || this.width, desiredHeight || this.height, "rgba(0, 0, 0, 0.4)");
+    // TODO: add an mask thingy
 
     this.img;
     this.parent = parent;
@@ -97,6 +102,15 @@ class Editor {
       this.drawImage(this.img);
     }
 
+    this.drawRect(this.mask);
+
+  }
+
+  drawRect(rect) {
+    this.context.save();
+    this.context.fillStyle = rect.color;
+    this.context.strokeRect(rect.pos.x - rect.size.x/2, rect.pos.y - rect.size.y/2, rect.size.x, rect.size.y);
+    this.context.restore();
   }
 
   drawImage(img) {
@@ -114,11 +128,19 @@ class Editor {
   }
 
   get blob() {
-    return this.canvas.toBlob();
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+      context.drawImage(this.canvas, this.mask.pos.x - this.mask.size.x/2, this.mask.pos.y - this.mask.size.y/2, this.mask.size.x, this.mask.size.y, 0, 0, this.mask.size.x, this.mask.size.y);
+      canvas.toBlob(resolve);
+    });
   }
 
   get dataUrl() {
-    return this.canvas.toDataURL();
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    context.drawImage(this.canvas, this.mask.pos.x - this.mask.size.x/2, this.mask.pos.y - this.mask.size.y/2, this.mask.size.x, this.mask.size.y, 0, 0, this.mask.size.x, this.mask.size.y);
+    return canvas.toDataURL();
   }
 
 }
